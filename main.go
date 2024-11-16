@@ -27,22 +27,22 @@ func main() {
 	for _, db := range backupedDbs {
 		if db == "mysql" {
 			BackupMysql()
-		} else if db == "postgree" {
-			BackupPostgree()
+		} else if db == "postgres" {
+			BackupPostgres()
 		} else {
 			fmt.Println("Database type not supported: ", color.RedString(db))
 		}
 	}
 }
 
-func BackupPostgree() {
+func BackupPostgres() {
 	postgreeHost := os.Getenv("POSTGREE_DB_HOST")
 	postgreePort := os.Getenv("POSTGREE_DB_PORT")
 	postgreeUser := os.Getenv("POSTGREE_DB_USERNAME")
 	postgreePass := os.Getenv("DB_PASSWORD")
 
 	backupDir := os.Getenv("BACKUP_DIR")
-	s3Path := os.Getenv("S3_PATH")
+	s3Path := os.Getenv("S3_PATH") + "/postgree"
 	listDbDiscard := os.Getenv("LIST_DB_DISCARD")
 
 	pgdumpPath := os.Getenv("PGDUMP_PATH")
@@ -91,7 +91,7 @@ func BackupPostgree() {
 			continue
 		}
 
-		command := fmt.Sprintf("PGPASSWORD='%s' %s -U %s -h %s -p %s %s --file %s", postgreePass, pgdumpPath, postgreeUser, postgreeHost, postgreePort, db, fmt.Sprint(currentFolder+"/"+backupDirWithTime, "/", db, ".sql"))
+		command := fmt.Sprintf("PGPASSWORD='%s' %s -U %s -h %s -p %s --format c %s --file %s", postgreePass, pgdumpPath, postgreeUser, postgreeHost, postgreePort, db, fmt.Sprint(currentFolder+"/"+backupDirWithTime, "/", db, ".sql"))
 		fmt.Println(command)
 		cmd := exec.Command("bash", "-c", command)
 		fmt.Println("Backing up database: ", color.GreenString(db))
